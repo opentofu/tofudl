@@ -15,6 +15,12 @@ type Downloader interface {
 	// ListVersions lists all versions matching the filter options in descending order.
 	ListVersions(ctx context.Context, opts ...ListVersionOpt) ([]VersionWithArtifacts, error)
 
+	// DownloadArtifact downloads an artifact for a version.
+	DownloadArtifact(ctx context.Context, version VersionWithArtifacts, artifactName string) ([]byte, error)
+
+	// VerifyArtifact verifies a named artifact against a checksum file with SHA256 hashes and the checksum file against a GPG signature file.
+	VerifyArtifact(artifactName string, artifactContents []byte, sumsFileContents []byte, signatureFileContent []byte) error
+
 	// DownloadVersion downloads the OpenTofu binary from a specific artifact obtained from ListVersions.
 	DownloadVersion(ctx context.Context, version VersionWithArtifacts, platform Platform, architecture Architecture) ([]byte, error)
 

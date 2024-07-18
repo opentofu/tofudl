@@ -51,6 +51,67 @@ func main() {
 }
 ```
 
+## Caching
+
+You can also set up a caching downloader like this:
+
+```go
+package main
+
+import (
+	"context"
+	"os"
+	"os/exec"
+	"runtime"
+	"time"
+
+	"github.com/opentofu/tofudl"
+)
+
+func main() {
+	// Initialize the downloader:
+	dl, err := tofudl.New()
+	if err != nil {
+		panic(err)
+	}
+
+	// Set up the caching layer:
+	caching, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
+		CacheDirectory:  "/tmp",
+		AllowStale: false,
+		APICacheTimeout: time.Minute * 10,
+		ArtifactCacheTimeout: time.Hour * 24,
+	}, dl)
+	if err != nil {
+		panic(err)
+    }
+
+	// Download the latest stable version
+	// for the current architecture and platform:
+	binary, err := caching.Download(context.TODO())
+	if err != nil {
+		panic(err)
+	}
+
+	// Write out the tofu binary to the disk:
+	file := "tofu"
+	if runtime.GOOS == "windows" {
+		file += ".exe"
+	}
+	if err := os.WriteFile(file, binary, 0755); err != nil {
+		panic(err)
+	}
+
+	// Run tofu:
+	cmd := exec.Command("./"+file, "init")
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
+}
+```
+
+You can also call `PreWarm` on the caching layer in order to pre-warm your local caches. (Be careful, this may take a long time!)
+
 ## Advanced usage
 
 Both `New()` and `Download()` accept a number of options. You can find the detailed documentation [here](https://pkg.go.dev/github.com/opentofu/tofudl).

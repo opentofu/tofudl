@@ -16,6 +16,9 @@ const DefaultMirrorURLTemplate = "https://github.com/opentofu/opentofu/releases/
 // BinaryName holds the name of the binary in the artifact. This may be suffixed .exe on Windows.
 const BinaryName = "tofu"
 
+// ArtifactPrefix is the prefix for the artifact names.
+const ArtifactPrefix = "tofu_"
+
 // GPGKeyURL describes the URL to download the bundled GPG key from. The GPG key bundler uses this to download the
 // GPG key for verification.
 const GPGKeyURL = "https://get.opentofu.org/opentofu.asc"

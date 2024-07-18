@@ -13,7 +13,7 @@ import (
 
 var artifactRe = regexp.MustCompile(`^[a-zA-Z0-9._\-]+$`)
 
-func (d *downloader) downloadArtifact(ctx context.Context, version VersionWithArtifacts, artifactName string) ([]byte, error) {
+func (d *downloader) DownloadArtifact(ctx context.Context, version VersionWithArtifacts, artifactName string) ([]byte, error) {
 	found := false
 	for _, file := range version.Files {
 		if file == artifactName {
