@@ -12,42 +12,42 @@ The downloader will work without any extra configuration out of the box:
 package main
 
 import (
-	"context"
-	"os"
-	"os/exec"
-	"runtime"
+    "context"
+    "os"
+    "os/exec"
+    "runtime"
 
-	"github.com/opentofu/tofudl"
+    "github.com/opentofu/tofudl"
 )
 
 func main() {
-	// Initialize the downloader:
-	dl, err := tofudl.New()
-	if err != nil {
-		panic(err)
-	}
+    // Initialize the downloader:
+    dl, err := tofudl.New()
+    if err != nil {
+        panic(err)
+    }
 
-	// Download the latest stable version
-	// for the current architecture and platform:
-	binary, err := dl.Download(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+    // Download the latest stable version
+    // for the current architecture and platform:
+    binary, err := dl.Download(context.TODO())
+    if err != nil {
+        panic(err)
+    }
 
-	// Write out the tofu binary to the disk:
-	file := "tofu"
-	if runtime.GOOS == "windows" {
-		file += ".exe"
-	}
-	if err := os.WriteFile(file, binary, 0755); err != nil {
-		panic(err)
-	}
+    // Write out the tofu binary to the disk:
+    file := "tofu"
+    if runtime.GOOS == "windows" {
+        file += ".exe"
+    }
+    if err := os.WriteFile(file, binary, 0755); err != nil {
+        panic(err)
+    }
 
-	// Run tofu:
-	cmd := exec.Command("./"+file, "init")
-	if err := cmd.Run(); err != nil {
-		panic(err)
-	}
+    // Run tofu:
+    cmd := exec.Command("./"+file, "init")
+    if err := cmd.Run(); err != nil {
+        panic(err)
+    }
 }
 ```
 
@@ -59,54 +59,54 @@ You can also set up a caching downloader like this:
 package main
 
 import (
-	"context"
-	"os"
-	"os/exec"
-	"runtime"
-	"time"
+    "context"
+    "os"
+    "os/exec"
+    "runtime"
+    "time"
 
-	"github.com/opentofu/tofudl"
+    "github.com/opentofu/tofudl"
 )
 
 func main() {
-	// Initialize the downloader:
-	dl, err := tofudl.New()
-	if err != nil {
-		panic(err)
-	}
-
-	// Set up the caching layer:
-	caching, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
-		CacheDirectory:  "/tmp",
-		AllowStale: false,
-		APICacheTimeout: time.Minute * 10,
-		ArtifactCacheTimeout: time.Hour * 24,
-	}, dl)
-	if err != nil {
-		panic(err)
+    // Initialize the downloader:
+    dl, err := tofudl.New()
+    if err != nil {
+        panic(err)
     }
 
-	// Download the latest stable version
-	// for the current architecture and platform:
-	binary, err := caching.Download(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+    // Set up the caching layer:
+    caching, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
+        CacheDirectory:  "/tmp",
+        AllowStale: false,
+        APICacheTimeout: time.Minute * 10,
+        ArtifactCacheTimeout: time.Hour * 24,
+    }, dl)
+    if err != nil {
+        panic(err)
+    }
 
-	// Write out the tofu binary to the disk:
-	file := "tofu"
-	if runtime.GOOS == "windows" {
-		file += ".exe"
-	}
-	if err := os.WriteFile(file, binary, 0755); err != nil {
-		panic(err)
-	}
+    // Download the latest stable version
+    // for the current architecture and platform:
+    binary, err := caching.Download(context.TODO())
+    if err != nil {
+        panic(err)
+    }
 
-	// Run tofu:
-	cmd := exec.Command("./"+file, "init")
-	if err := cmd.Run(); err != nil {
-		panic(err)
-	}
+    // Write out the tofu binary to the disk:
+    file := "tofu"
+    if runtime.GOOS == "windows" {
+        file += ".exe"
+    }
+    if err := os.WriteFile(file, binary, 0755); err != nil {
+        panic(err)
+    }
+
+    // Run tofu:
+    cmd := exec.Command("./"+file, "init")
+    if err := cmd.Run(); err != nil {
+        panic(err)
+    }
 }
 ```
 
