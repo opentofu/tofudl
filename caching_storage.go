@@ -43,7 +43,7 @@ func (c cacheStorage) getAPIFileName() string {
 
 func (c cacheStorage) storeAPIFile(data []byte) error {
 	apiFile := c.getAPIFileName()
-	return os.WriteFile(apiFile, data, 0644)
+	return os.WriteFile(apiFile, data, 0644) //nolint:gosec //This is not sensitive
 }
 
 func (c cacheStorage) readArtifact(version Version, artifact string) (io.ReadCloser, bool, error) {
@@ -53,7 +53,7 @@ func (c cacheStorage) readArtifact(version Version, artifact string) (io.ReadClo
 
 func (c cacheStorage) storeArtifact(version Version, artifact string, contents []byte) error {
 	cacheDirectory := c.getArtifactCacheDirectory(version, artifact)
-	if err := os.MkdirAll(cacheDirectory, 0644); err != nil {
+	if err := os.MkdirAll(cacheDirectory, 0644); err != nil { //nolint:gosec //This is not sensitive
 		return fmt.Errorf("failed to create cache directory %s (%w)", cacheDirectory, err)
 	}
 	cacheFile := c.getArtifactCacheFileName(cacheDirectory, artifact)

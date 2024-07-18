@@ -31,7 +31,7 @@ func (c *cachingDownloader) PreWarm(ctx context.Context, versionCount int, progr
 			if err != nil {
 				return fmt.Errorf("failed to download artifact %s for version %s (%w)", artifact, version.ID, err)
 			}
-			downloadedArtifacts += 1
+			downloadedArtifacts++
 			if progress != nil {
 				progress(int8(100 * float64(downloadedArtifacts) / float64(totalArtifacts)))
 			}
