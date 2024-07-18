@@ -18,13 +18,20 @@ func TestMirroringE2E(t *testing.T) {
 	}
 
 	cacheDir := t.TempDir()
+	storage, err := tofudl.NewFilesystemCachingStorage(cacheDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	cache1, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
-		CacheDirectory:       cacheDir,
-		AllowStale:           false,
-		APICacheTimeout:      time.Minute * 30,
-		ArtifactCacheTimeout: time.Minute * 30,
-	}, dl1)
+	cache1, err := tofudl.NewCacheLayer(
+		tofudl.CacheConfig{
+			AllowStale:           false,
+			APICacheTimeout:      time.Minute * 30,
+			ArtifactCacheTimeout: time.Minute * 30,
+		},
+		storage,
+		dl1,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,12 +52,15 @@ func TestMirroringE2E(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cache2, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
-		CacheDirectory:       cacheDir,
-		AllowStale:           false,
-		APICacheTimeout:      time.Minute * 30,
-		ArtifactCacheTimeout: time.Minute * 30,
-	}, dl2)
+	cache2, err := tofudl.NewCacheLayer(
+		tofudl.CacheConfig{
+			AllowStale:           false,
+			APICacheTimeout:      -1,
+			ArtifactCacheTimeout: -1,
+		},
+		storage,
+		dl2,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

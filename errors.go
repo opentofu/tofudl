@@ -180,3 +180,42 @@ func (e ArtifactCorruptedError) Error() string {
 func (e ArtifactCorruptedError) Unwrap() error {
 	return e.Cause
 }
+
+// CacheMissError indicates that the artifact or file is not cached.
+type CacheMissError struct {
+	File  string
+	Cause error
+}
+
+// Error returns the error message.
+func (e CacheMissError) Error() string {
+	if e.Cause != nil {
+		return "Cache miss for " + e.File + " (" + e.Cause.Error() + ")"
+	}
+	return "Cache miss for " + e.File
+}
+
+// Unwrap returns the original error.
+func (e CacheMissError) Unwrap() error {
+	return e.Cause
+}
+
+// CachedArtifactStaleError indicates that the file is cached, but stale.
+type CachedArtifactStaleError struct {
+	Version  Version
+	Artifact string
+}
+
+// Error returns the error message.
+func (e CachedArtifactStaleError) Error() string {
+	return "Cache is stale for v" + string(e.Version) + "/" + e.Artifact
+}
+
+// CachedAPIResponseStaleError indicates that the API response is cached, but stale.
+type CachedAPIResponseStaleError struct {
+}
+
+// Error returns the error message.
+func (e CachedAPIResponseStaleError) Error() string {
+	return "Cache is stale for API response"
+}

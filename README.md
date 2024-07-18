@@ -76,12 +76,19 @@ func main() {
     }
 
     // Set up the caching layer:
-    caching, err := tofudl.NewCacheLayer(tofudl.CacheConfig{
-        CacheDirectory:  "/tmp",
-        AllowStale: false,
-        APICacheTimeout: time.Minute * 10,
-        ArtifactCacheTimeout: time.Hour * 24,
-    }, dl)
+	storage, err := tofudl.NewFilesystemCachingStorage("/tmp")
+	if err != nil {
+		panic(err)
+    }
+    caching, err := tofudl.NewCacheLayer(
+		tofudl.CacheConfig{
+            AllowStale: false,
+            APICacheTimeout: time.Minute * 10,
+            ArtifactCacheTimeout: time.Hour * 24,
+        },
+		storage,
+		dl,
+    )
     if err != nil {
         panic(err)
     }

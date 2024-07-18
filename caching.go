@@ -5,18 +5,13 @@ package tofudl
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"time"
 )
 
 // NewCacheLayer creates a new caching downloader with the corresponding backing downloader.
-func NewCacheLayer(config CacheConfig, backingDownloader Downloader) (CachingDownloader, error) {
-	if err := os.MkdirAll(config.CacheDirectory, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create cache directory %s (%w)", config.CacheDirectory, err)
-	}
-
+func NewCacheLayer(config CacheConfig, cachingStorage CachingStorage, backingDownloader Downloader) (CachingDownloader, error) {
 	return &cachingDownloader{
+		cachingStorage,
 		backingDownloader,
 		config,
 	}, nil
@@ -24,11 +19,6 @@ func NewCacheLayer(config CacheConfig, backingDownloader Downloader) (CachingDow
 
 // CachingDownloader is a downloader that caches artifacts. It also supports pre-warming caches by calling the
 // PreWarm function. The cache directory can simultaneously also be used as a mirror when served using an HTTP server.
-//
-// The cache directory layout is as follows:
-//
-// - api.json
-// - v1.2.3/artifact.name
 type CachingDownloader interface {
 	Downloader
 
@@ -40,8 +30,6 @@ type CachingDownloader interface {
 
 // CacheConfig is the configuration structure for the caching downloader.
 type CacheConfig struct {
-	// CacheDirectory is the directory the cache is stored in. This directory must exist or must be creatable.
-	CacheDirectory string `json:"cache_directory"`
 	// AllowStale enables using stale cached resources if the download fails.
 	AllowStale bool `json:"allow_stale"`
 	// APICacheTimeout is the time the cached API JSON should be considered valid. A duration of 0 means the API
@@ -52,12 +40,8 @@ type CacheConfig struct {
 	ArtifactCacheTimeout time.Duration `json:"artifact_cache_timeout"`
 }
 
-func (c CacheConfig) isDisabled() bool {
-	return c.CacheDirectory == ""
-}
-
 type cachingDownloader struct {
+	storage           CachingStorage
 	backingDownloader Downloader
-
-	config CacheConfig
+	config            CacheConfig
 }

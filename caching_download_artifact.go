@@ -5,47 +5,43 @@ package tofudl
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"time"
 )
 
 func (c *cachingDownloader) DownloadArtifact(ctx context.Context, version VersionWithArtifacts, artifactName string) ([]byte, error) {
-	if c.config.isDisabled() || c.config.ArtifactCacheTimeout == 0 {
+	if c.storage == nil || c.config.ArtifactCacheTimeout == 0 {
 		return c.backingDownloader.DownloadArtifact(ctx, version, artifactName)
 	}
 
-	storage := &cacheStorage{
-		c.config,
-	}
-
-	cachedArtifact, err := c.tryReadArtifactCache(storage, version.ID, artifactName, false)
+	cachedArtifact, err := c.tryReadArtifactCache(c.storage, version.ID, artifactName, false)
 	if err == nil {
 		return cachedArtifact, nil
 	}
 
 	artifact, onlineErr := c.backingDownloader.DownloadArtifact(ctx, version, artifactName)
 	if onlineErr == nil {
-		_ = storage.storeArtifact(version.ID, artifactName, artifact)
+		_ = c.storage.StoreArtifact(version.ID, artifactName, artifact)
 		return artifact, nil
 	}
 
-	cachedArtifact, err = c.tryReadArtifactCache(storage, version.ID, artifactName, true)
+	cachedArtifact, err = c.tryReadArtifactCache(c.storage, version.ID, artifactName, true)
 	if err == nil {
 		return cachedArtifact, nil
 	}
 	return nil, onlineErr
 }
 
-func (c *cachingDownloader) tryReadArtifactCache(storage *cacheStorage, version Version, artifact string, allowStale bool) ([]byte, error) {
-	cacheReader, stale, err := storage.readArtifact(version, artifact)
+func (c *cachingDownloader) tryReadArtifactCache(storage CachingStorage, version Version, artifact string, allowStale bool) ([]byte, error) {
+	cacheReader, storeTime, err := storage.ReadArtifact(version, artifact)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
 		_ = cacheReader.Close()
 	}()
-	if stale && !allowStale {
-		return nil, fmt.Errorf("resource stale")
+	if !allowStale && c.config.ArtifactCacheTimeout > 0 && storeTime.Add(c.config.ArtifactCacheTimeout).Before(time.Now()) {
+		return nil, &CachedArtifactStaleError{Version: version, Artifact: artifact}
 	}
 	return io.ReadAll(cacheReader)
 }

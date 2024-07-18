@@ -6,21 +6,17 @@ package tofudl
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
+	"time"
 )
 
 func (c *cachingDownloader) ListVersions(ctx context.Context, opts ...ListVersionOpt) ([]VersionWithArtifacts, error) {
-	if c.config.isDisabled() || c.config.APICacheTimeout == 0 {
+	if c.storage == nil || c.config.APICacheTimeout == 0 {
 		return c.backingDownloader.ListVersions(ctx, opts...)
 	}
 
-	storage := &cacheStorage{
-		c.config,
-	}
-
 	// Fetch non-stale cached version:
-	cachedVersions, err := c.tryReadVersionCache(storage, opts, false)
+	cachedVersions, err := c.tryReadVersionCache(c.storage, opts, false)
 	if err == nil {
 		return cachedVersions, nil
 	}
@@ -30,29 +26,29 @@ func (c *cachingDownloader) ListVersions(ctx context.Context, opts ...ListVersio
 	if onlineErr == nil {
 		marshalledVersions, err := json.Marshal(APIResponse{versions})
 		if err == nil {
-			_ = storage.storeAPIFile(marshalledVersions)
+			_ = c.storage.StoreAPIFile(marshalledVersions)
 		}
 		return versions, nil
 	}
 
 	// Fetch stale cached version:
-	cachedVersions, err = c.tryReadVersionCache(storage, opts, true)
+	cachedVersions, err = c.tryReadVersionCache(c.storage, opts, true)
 	if err == nil {
 		return cachedVersions, nil
 	}
 	return nil, onlineErr
 }
 
-func (c *cachingDownloader) tryReadVersionCache(storage *cacheStorage, opts []ListVersionOpt, allowStale bool) ([]VersionWithArtifacts, error) {
-	cacheReader, stale, err := storage.readAPIFile()
+func (c *cachingDownloader) tryReadVersionCache(storage CachingStorage, opts []ListVersionOpt, allowStale bool) ([]VersionWithArtifacts, error) {
+	cacheReader, storeTime, err := storage.ReadAPIFile()
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
 		_ = cacheReader.Close()
 	}()
-	if stale && !allowStale {
-		return nil, fmt.Errorf("resource stale")
+	if !allowStale && c.config.ArtifactCacheTimeout > 0 && storeTime.Add(c.config.ArtifactCacheTimeout).Before(time.Now()) {
+		return nil, &CachedAPIResponseStaleError{}
 	}
 	return fetchVersions(opts, func() (io.ReadCloser, error) {
 		return cacheReader, nil

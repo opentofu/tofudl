@@ -9,7 +9,7 @@ import (
 )
 
 func (c *cachingDownloader) PreWarm(ctx context.Context, versionCount int, progress func(pct int8)) error {
-	if c.config.isDisabled() {
+	if c.storage == nil {
 		return nil
 	}
 
