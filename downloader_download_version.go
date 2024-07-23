@@ -76,10 +76,7 @@ func downloadVersion(
 		_ = gz.Close()
 	}()
 
-	binaryName := branding.BinaryName
-	if platform == PlatformWindows {
-		binaryName += ".exe"
-	}
+	binaryName := branding.PlatformBinaryName
 	tarFile := tar.NewReader(gz)
 	for {
 		current, err := tarFile.Next()

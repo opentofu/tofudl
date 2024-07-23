@@ -13,10 +13,17 @@ import (
 	"testing"
 
 	"github.com/opentofu/tofudl"
+	"github.com/opentofu/tofudl/mockmirror"
 )
 
 func TestE2E(t *testing.T) {
-	dl, err := tofudl.New()
+	mirror := mockmirror.New(t)
+
+	dl, err := tofudl.New(
+		tofudl.ConfigGPGKey(mirror.GPGKey()),
+		tofudl.ConfigAPIURL(mirror.APIURL()),
+		tofudl.ConfigDownloadMirrorURLTemplate(mirror.DownloadMirrorURLTemplate()),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

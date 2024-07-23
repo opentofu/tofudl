@@ -9,10 +9,17 @@ import (
 	"time"
 
 	"github.com/opentofu/tofudl"
+	"github.com/opentofu/tofudl/mockmirror"
 )
 
 func TestMirroringE2E(t *testing.T) {
-	dl1, err := tofudl.New()
+	mirror := mockmirror.New(t)
+
+	dl1, err := tofudl.New(
+		tofudl.ConfigGPGKey(mirror.GPGKey()),
+		tofudl.ConfigAPIURL(mirror.APIURL()),
+		tofudl.ConfigDownloadMirrorURLTemplate(mirror.DownloadMirrorURLTemplate()),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +54,11 @@ func TestMirroringE2E(t *testing.T) {
 	t.Logf("Pre-warming caches complete.")
 
 	// Configure an invalid API and mirror URL and see if the cache works.
-	dl2, err := tofudl.New(tofudl.ConfigAPIURL("http://127.0.0.1:9999/"), tofudl.ConfigDownloadMirrorURLTemplate("http://127.0.0.1:9999/{{ .Version }}/{{ .Artifact }}"))
+	dl2, err := tofudl.New(
+		tofudl.ConfigAPIURL("http://127.0.0.1:9999/"),
+		tofudl.ConfigDownloadMirrorURLTemplate("http://127.0.0.1:9999/{{ .Version }}/{{ .Artifact }}"),
+		tofudl.ConfigGPGKey(mirror.GPGKey()),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

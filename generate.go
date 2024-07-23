@@ -3,4 +3,4 @@
 
 package tofudl
 
-//go:generate go run tools/license-headers/main.go
+//go:generate go run github.com/opentofu/tofudl/internal/tools/license-headers

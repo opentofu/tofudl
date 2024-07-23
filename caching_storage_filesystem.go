@@ -65,12 +65,12 @@ func (c cacheStorage) StoreAPIFile(data []byte) error {
 }
 
 func (c cacheStorage) ReadArtifact(version Version, artifact string) (io.ReadCloser, time.Time, error) {
-	cacheFile := c.getArtifactCacheFileName(c.getArtifactCacheDirectory(version, artifact), artifact)
+	cacheFile := c.getArtifactCacheFileName(c.getArtifactCacheDirectory(version), artifact)
 	return c.readCacheFile(cacheFile)
 }
 
 func (c cacheStorage) StoreArtifact(version Version, artifact string, contents []byte) error {
-	cacheDirectory := c.getArtifactCacheDirectory(version, artifact)
+	cacheDirectory := c.getArtifactCacheDirectory(version)
 	if err := os.MkdirAll(cacheDirectory, 0755); err != nil {
 		return fmt.Errorf("failed to create cache directory %s (%w)", cacheDirectory, err)
 	}
@@ -85,7 +85,7 @@ func (c cacheStorage) getArtifactCacheFileName(cacheDirectory string, artifact s
 	return path.Join(cacheDirectory, artifact)
 }
 
-func (c cacheStorage) getArtifactCacheDirectory(version Version, artifact string) string {
-	cacheDirectory := path.Join(c.directory, "v"+string(version), artifact)
+func (c cacheStorage) getArtifactCacheDirectory(version Version) string {
+	cacheDirectory := path.Join(c.directory, "v"+string(version))
 	return cacheDirectory
 }

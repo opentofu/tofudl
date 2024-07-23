@@ -5,7 +5,7 @@
 
 package branding
 
-//go:generate go run github.com/opentofu/tofudl/tools/bundle-gpg-key -file gpg_key.go -url https://get.opentofu.org/opentofu.asc
+//go:generate go run github.com/opentofu/tofudl/internal/tools/bundle-gpg-key -file gpg_key.go -url https://get.opentofu.org/opentofu.asc
 
 // DefaultGPGKey holds the default GPG key bundled with the downloader. This key was downloaded from
 // https://get.opentofu.org/opentofu.asc
