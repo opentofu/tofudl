@@ -143,11 +143,11 @@ var optionStability = option{
 	description:        "Minimum stability to download for. Possible values are: " + getStabilityValues() + "",
 	defaultDescription: "stable",
 	applyDownloadOption: func(value string) (tofudl.DownloadOpt, error) {
-		platform := tofudl.Platform(value)
-		if err := platform.Validate(); err != nil {
+		stability := tofudl.Stability(value)
+		if err := stability.Validate(); err != nil {
 			return nil, err
 		}
-		return tofudl.DownloadOptPlatform(platform), nil
+		return tofudl.DownloadOptMinimumStability(stability), nil
 	},
 }
 

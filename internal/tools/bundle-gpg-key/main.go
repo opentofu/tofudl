@@ -25,7 +25,7 @@ var templateText = `// Copyright (c) {{ .Authors }}
 
 package branding
 
-//go:` + `generate go run github.com/opentofu/tofudl/tools/bundle-gpg-key -file {{ .File }} -url {{ .URL }}
+//go:` + `generate go run github.com/opentofu/tofudl/internal/tools/bundle-gpg-key -file {{ .File }} -url {{ .URL }}
 
 // DefaultGPGKey holds the default GPG key bundled with the downloader. This key was downloaded from
 // {{ .URL }}

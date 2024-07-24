@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"slices"
 )
 
@@ -26,28 +27,43 @@ func ListVersionOptMinimumStability(stability Stability) ListVersionOpt {
 	}
 }
 
-type listVersionsResponse struct {
+// APIResponse is the JSON response from the API URL.
+type APIResponse struct {
+	// Versions is the list of versions from the API.
 	Versions []VersionWithArtifacts `json:"versions"`
 }
 
 func (d *downloader) ListVersions(ctx context.Context, opts ...ListVersionOpt) ([]VersionWithArtifacts, error) {
+	fetchVersionsFile := func() (io.ReadCloser, error) {
+		body, err := d.getRequest(ctx, d.config.APIURL, d.config.APIURLAuthorization)
+		if err != nil {
+			return nil, &RequestFailedError{
+				err,
+			}
+		}
+		return body, nil
+	}
+
+	return fetchVersions(opts, fetchVersionsFile)
+}
+
+func fetchVersions(opts []ListVersionOpt, fetchVersionsFileFunc func() (io.ReadCloser, error)) ([]VersionWithArtifacts, error) {
 	options := ListVersionsOptions{}
 	for _, opt := range opts {
 		if err := opt(&options); err != nil {
 			return nil, &InvalidOptionsError{err}
 		}
 	}
-	body, err := d.getRequest(ctx, d.config.APIURL, d.config.APIURLAuthorization)
+
+	body, err := fetchVersionsFileFunc()
 	if err != nil {
-		return nil, &RequestFailedError{
-			err,
-		}
+		return nil, err
 	}
 	defer func() {
 		_ = body.Close()
 	}()
 
-	responseData := listVersionsResponse{}
+	responseData := APIResponse{}
 	decoder := json.NewDecoder(body)
 	if err := decoder.Decode(&responseData); err != nil {
 		return nil, &RequestFailedError{

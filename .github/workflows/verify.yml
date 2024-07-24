@@ -17,10 +17,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Check license headers
-        run: go run github.com/opentofu/tofudl/tools/license-headers -check-only
+        run: go run github.com/opentofu/tofudl/internal/tools/license-headers -check-only
       - name: Check GPG key
         working-directory: branding
-        run: go run github.com/opentofu/tofudl/tools/bundle-gpg-key -check-only
+        run: go run github.com/opentofu/tofudl/internal/tools/bundle-gpg-key -check-only
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Lint
-        run: go run github.com/opentofu/tofudl/tools/lint
+        run: go run github.com/opentofu/tofudl/internal/tools/lint
   tests:
     name: Tests
     strategy:
