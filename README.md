@@ -76,18 +76,18 @@ func main() {
     }
 
     // Set up the caching layer:
-	storage, err := tofudl.NewFilesystemStorage("/tmp")
-	if err != nil {
-		panic(err)
+    storage, err := tofudl.NewFilesystemStorage("/tmp")
+    if err != nil {
+        panic(err)
     }
     mirror, err := tofudl.NewMirror(
-		tofudl.MirrorConfig{
+        tofudl.MirrorConfig{
             AllowStale: false,
             APICacheTimeout: time.Minute * 10,
             ArtifactCacheTimeout: time.Hour * 24,
         },
-		storage,
-		dl,
+        storage,
+        dl,
     )
     if err != nil {
         panic(err)
