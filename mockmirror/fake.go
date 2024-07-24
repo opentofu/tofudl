@@ -55,7 +55,7 @@ func buildFake(t *testing.T) []byte {
 		t.Fatalf("Failed to read compiled fake (%v)", err)
 	}
 
-	if err := os.WriteFile(binaryPath, contents, 0700); err != nil {
+	if err := os.WriteFile(binaryPath, contents, 0700); err != nil { //nolint:gosec //This needs to be executable.
 		t.Fatalf("Failed to create fake binary at %s (%v)", binaryPath, err)
 	}
 	return contents

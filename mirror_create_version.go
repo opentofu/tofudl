@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-func (m *mirror) CreateVersion(ctx context.Context, version Version) error {
+func (m *mirror) CreateVersion(_ context.Context, version Version) error {
 	if m.pullThroughDownloader != nil {
 		return fmt.Errorf("cannot use CreateVersionAsset when a pull-through mirror is configured")
 	}
@@ -43,7 +43,7 @@ func (m *mirror) CreateVersion(ctx context.Context, version Version) error {
 			ID:    version,
 			Files: []string{},
 		},
-	})
+	}, responseData.Versions...)
 
 	marshalled, err := json.Marshal(responseData)
 	if err != nil {

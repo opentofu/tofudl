@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func (m *mirror) CreateVersionAsset(ctx context.Context, version Version, assetName string, assetData []byte) error {
+func (m *mirror) CreateVersionAsset(_ context.Context, version Version, assetName string, assetData []byte) error {
 	if m.pullThroughDownloader != nil {
 		return fmt.Errorf("cannot use CreateVersionAsset when a pull-through mirror is configured")
 	}

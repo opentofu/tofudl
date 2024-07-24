@@ -33,7 +33,7 @@ func (m *mirror) serveAPI(ctx context.Context, writer http.ResponseWriter) {
 		m.badGateway(writer)
 		return
 	}
-	writer.WriteHeader(200)
+	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "application/json")
 	_, _ = writer.Write(encoded)
 }
@@ -60,6 +60,7 @@ func (m *mirror) serveAsset(ctx context.Context, writer http.ResponseWriter, req
 	}
 	var foundVersion *VersionWithArtifacts
 	for _, ver := range versions {
+		ver := ver
 		if ver.ID == version {
 			foundVersion = &ver
 			break
@@ -75,7 +76,7 @@ func (m *mirror) serveAsset(ctx context.Context, writer http.ResponseWriter, req
 		m.badGateway(writer)
 		return
 	}
-	writer.WriteHeader(200)
+	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "application/octet-stream")
 	_, _ = writer.Write(contents)
 }

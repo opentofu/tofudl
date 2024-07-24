@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -19,22 +20,28 @@ import (
 )
 
 func main() {
+	if err := runMain(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func runMain() error {
 	file := ""
 	flag.StringVar(&file, "file", file, "File to write to.")
 	flag.Parse()
 
 	dir := path.Join(os.TempDir(), "fake")
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer func() {
 		_ = os.RemoveAll(dir)
 	}()
-	if err := os.WriteFile(path.Join(dir, "go.mod"), []byte(gomod), 0644); err != nil {
-		log.Fatal(err)
+	if err := os.WriteFile(path.Join(dir, "go.mod"), []byte(gomod), 0644); err != nil { //nolint:gosec //This is not sensitive.
+		return err
 	}
-	if err := os.WriteFile(path.Join(dir, "main.go"), []byte(code), 0644); err != nil {
-		log.Fatal()
+	if err := os.WriteFile(path.Join(dir, "main.go"), []byte(code), 0644); err != nil { //nolint:gosec //This is not sensitive.
+		return err
 	}
 
 	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", "fake")
@@ -44,20 +51,19 @@ func main() {
 	if err := cmd.Run(); err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			log.Println("Build failed.")
-			os.Exit(exitErr.ExitCode())
+			return fmt.Errorf("build failed (exit code %d)", exitErr.ExitCode())
 		}
-		log.Fatal(err)
+		return err
 	}
 
 	contents, err := os.ReadFile(path.Join(dir, "fake"))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	tpl := template.New("")
 	if tpl, err = tpl.Parse(templateText); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	parts := make([]string, len(contents))
@@ -82,15 +88,16 @@ func main() {
 		contentsCode,
 		file,
 	}); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	if err := os.WriteFile(file+"~", buf.Bytes(), 0644); err != nil {
-		log.Fatal(err)
+	if err := os.WriteFile(file+"~", buf.Bytes(), 0644); err != nil { //nolint:gosec //This is not sensitive.
+		return err
 	}
 	if err := os.Rename(file+"~", file); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 var templateText = `// Copyright (c) {{ .Authors }}

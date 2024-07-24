@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
 	"github.com/opentofu/tofudl"
@@ -62,10 +63,16 @@ func NewFromBinary(
 	if err != nil {
 		t.Fatalf("Failed to open listen socket for mock mirror (%v)", err)
 	}
+	srv := &http.Server{
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Handler:      tofudlMirror,
+	}
 	go func() {
-		_ = http.Serve(ln, tofudlMirror)
+		_ = srv.Serve(ln)
 	}()
 	t.Cleanup(func() {
+		_ = srv.Shutdown(context.Background())
 		_ = ln.Close()
 	})
 	return &mirror{
