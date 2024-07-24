@@ -53,7 +53,7 @@ func main() {
 
 ## Caching
 
-You can also set up a caching downloader like this:
+This library also supports caching using the mirror tool:
 
 ```go
 package main
@@ -76,12 +76,12 @@ func main() {
     }
 
     // Set up the caching layer:
-	storage, err := tofudl.NewFilesystemCachingStorage("/tmp")
+	storage, err := tofudl.NewFilesystemStorage("/tmp")
 	if err != nil {
 		panic(err)
     }
-    caching, err := tofudl.NewCacheLayer(
-		tofudl.CacheConfig{
+    mirror, err := tofudl.NewMirror(
+		tofudl.MirrorConfig{
             AllowStale: false,
             APICacheTimeout: time.Minute * 10,
             ArtifactCacheTimeout: time.Hour * 24,
@@ -95,7 +95,7 @@ func main() {
 
     // Download the latest stable version
     // for the current architecture and platform:
-    binary, err := caching.Download(context.TODO())
+    binary, err := mirror.Download(context.TODO())
     if err != nil {
         panic(err)
     }
@@ -117,7 +117,11 @@ func main() {
 }
 ```
 
-You can also call `PreWarm` on the caching layer in order to pre-warm your local caches. (Be careful, this may take a long time!)
+You can also use the `mirror` variable as an `http.Handler`. Additionally, you can also call `PreWarm` on the caching layer in order to pre-warm your local caches. (Be careful, this may take a long time!)
+
+## Standalone mirror
+
+The example above showed a cache/mirror that acts as a pull-through cache to upstream. You can alternatively also use the mirror as a stand-alone mirror and publish your own binaries. The mirror has functions to facilitate uploading basic artifacts, but you can also use the `ReleaseBuilder` to make building releases easier. (Note: the `ReleaseBuilder` only builds artifacts needed for TofuDL, not all artifacts OpenTofu typically publishes.)
 
 ## Advanced usage
 
