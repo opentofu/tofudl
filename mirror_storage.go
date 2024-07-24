@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// CachingStorage is responsible for handling the low-level storage of caches.
-type CachingStorage interface {
+// MirrorStorage is responsible for handling the low-level storage of caches.
+type MirrorStorage interface {
 	// ReadAPIFile reads the API file cache and returns a reader for it. It also returns the time when the cached
 	// response was written. It will return a CacheMissError if the API response is not cached.
 	ReadAPIFile() (io.ReadCloser, time.Time, error)

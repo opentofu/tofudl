@@ -5,7 +5,6 @@ package mockmirror
 
 import (
 	"errors"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -25,16 +24,16 @@ func buildFake(t *testing.T) []byte {
 	}
 
 	dir := path.Join(os.TempDir(), "fake")
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0700); err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
 		_ = os.RemoveAll(dir)
 	}()
-	if err := os.WriteFile(path.Join(dir, "go.mod"), []byte(gomod), 0644); err != nil {
+	if err := os.WriteFile(path.Join(dir, "go.mod"), []byte(gomod), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(path.Join(dir, "main.go"), []byte(code), 0644); err != nil {
+	if err := os.WriteFile(path.Join(dir, "main.go"), []byte(code), 0600); err != nil {
 		t.Fatal()
 	}
 
@@ -53,10 +52,10 @@ func buildFake(t *testing.T) []byte {
 
 	contents, err := os.ReadFile(path.Join(dir, "fake"))
 	if err != nil {
-		log.Fatal(err)
+		t.Fatalf("Failed to read compiled fake (%v)", err)
 	}
 
-	if err := os.WriteFile(binaryPath, contents, 0755); err != nil {
+	if err := os.WriteFile(binaryPath, contents, 0700); err != nil {
 		t.Fatalf("Failed to create fake binary at %s (%v)", binaryPath, err)
 	}
 	return contents

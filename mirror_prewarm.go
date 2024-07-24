@@ -8,12 +8,12 @@ import (
 	"fmt"
 )
 
-func (c *cachingDownloader) PreWarm(ctx context.Context, versionCount int, progress func(pct int8)) error {
-	if c.storage == nil {
+func (m *mirror) PreWarm(ctx context.Context, versionCount int, progress func(pct int8)) error {
+	if m.storage == nil {
 		return nil
 	}
 
-	versions, err := c.ListVersions(ctx)
+	versions, err := m.ListVersions(ctx)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (c *cachingDownloader) PreWarm(ctx context.Context, versionCount int, progr
 	downloadedArtifacts := 0
 	for _, version := range versions {
 		for _, artifact := range version.Files {
-			_, err = c.DownloadArtifact(ctx, version, artifact)
+			_, err = m.DownloadArtifact(ctx, version, artifact)
 			if err != nil {
 				return fmt.Errorf("failed to download artifact %s for version %s (%w)", artifact, version.ID, err)
 			}

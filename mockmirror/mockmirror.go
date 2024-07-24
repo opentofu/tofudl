@@ -4,6 +4,7 @@
 package mockmirror
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"strconv"
@@ -35,53 +36,46 @@ func NewFromBinary(
 		t.Fatalf("Failed to get public key (%v)", err)
 	}
 
-	platform, err := tofudl.PlatformAuto.ResolveAuto()
+	builder, err := tofudl.NewReleaseBuilder(key)
 	if err != nil {
-		t.Fatalf("Failed to resolve platform (%v)", err)
+		t.Fatalf("Failed to create release builder (%v)", err)
 	}
-	arch, err := tofudl.ArchitectureAuto.ResolveAuto()
+	if err := builder.PackageBinary(tofudl.PlatformAuto, tofudl.ArchitectureAuto, binary, map[string][]byte{}); err != nil {
+		t.Fatalf("Failed to package binary (%v)", err)
+	}
+
+	storage, err := tofudl.NewFilesystemStorage(t.TempDir())
 	if err != nil {
-		t.Fatalf("Failed to resolve architecture (%v)", err)
+		t.Fatalf("Failed to create storage (%v)", err)
 	}
-	version := "1.0.0"
 
-	archiveName := branding.ArtifactPrefix + version + "_" + string(platform) + "_" + string(arch) + ".tar.gz"
-	sumsName := branding.ArtifactPrefix + version + "_SHA256SUMS"
-	sigName := branding.ArtifactPrefix + version + "_SHA256SUMS.gpgsig"
+	tofudlMirror, err := tofudl.NewMirror(tofudl.MirrorConfig{}, storage, nil)
+	if err != nil {
+		t.Fatalf("Failed to create mirror (%v)", err)
+	}
 
-	apiResponse := buildAPI(t, version, []string{
-		archiveName, sumsName, sigName,
-	})
-	archive := buildTarFile(t, binary)
-	sums := buildSumsFile(map[string][]byte{
-		archiveName: archive,
-	})
-	sig := signFile(t, sums, key)
+	if err := builder.Build(context.Background(), "1.0.0", tofudlMirror); err != nil {
+		t.Fatalf("Failed to build release (%v)", err)
+	}
 
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Failed to open listen socket for mock mirror (%v)", err)
 	}
-	addr := ln.Addr().(*net.TCPAddr)
-	mirrorInstance := &mirror{
-		addr:   addr,
-		pubKey: pubKey,
-		files: map[string][]byte{
-			"/api.json":                        apiResponse,
-			"/v" + version + "/" + archiveName: archive,
-			"/v" + version + "/" + sumsName:    sums,
-			"/v" + version + "/" + sigName:     sig,
-		},
-	}
 	go func() {
-		_ = http.Serve(ln, mirrorInstance)
+		_ = http.Serve(ln, tofudlMirror)
 	}()
 	t.Cleanup(func() {
 		_ = ln.Close()
 	})
-	return mirrorInstance
+	return &mirror{
+		addr:   ln.Addr().(*net.TCPAddr),
+		pubKey: pubKey,
+	}
 }
 
+// Mirror is a mock mirror for testing purposes holding a single version with a single binary for the current platform
+// and architecture.
 type Mirror interface {
 	GPGKey() string
 	APIURL() string
@@ -91,7 +85,6 @@ type Mirror interface {
 type mirror struct {
 	addr   *net.TCPAddr
 	pubKey string
-	files  map[string][]byte
 }
 
 func (m mirror) GPGKey() string {
@@ -104,13 +97,4 @@ func (m mirror) APIURL() string {
 
 func (m mirror) DownloadMirrorURLTemplate() string {
 	return "http://127.0.0.1:" + strconv.Itoa(m.addr.Port) + "/v{{ .Version }}/{{ .Artifact }}"
-}
-
-func (m mirror) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	contents, ok := m.files[request.RequestURI]
-	if !ok {
-		writer.WriteHeader(404)
-		return
-	}
-	_, _ = writer.Write(contents)
 }

@@ -9,10 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"runtime"
 	"testing"
 
 	"github.com/opentofu/tofudl"
+	"github.com/opentofu/tofudl/branding"
 	"github.com/opentofu/tofudl/mockmirror"
 )
 
@@ -34,10 +34,7 @@ func TestE2E(t *testing.T) {
 	}
 
 	tmp := t.TempDir()
-	fileName := "tofu"
-	if runtime.GOOS == "windows" {
-		fileName += ".exe"
-	}
+	fileName := branding.PlatformBinaryName
 	fullPath := path.Join(tmp, fileName)
 	if err := os.WriteFile(fullPath, binary, 0755); err != nil { //nolint:gosec //We want the binary to be executable.
 		t.Fatal(err)
