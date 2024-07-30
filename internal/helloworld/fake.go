@@ -1,7 +1,7 @@
 // Copyright (c) The OpenTofu Authors
 // SPDX-License-Identifier: MPL-2.0
 
-package mockmirror
+package helloworld
 
 import (
 	"errors"
@@ -12,18 +12,14 @@ import (
 	"testing"
 )
 
-func buildFake(t *testing.T) []byte {
-	_, filename, _, _ := runtime.Caller(1)
-	fakeDir := path.Join(path.Dir(filename), "fake")
-	if err := os.MkdirAll(fakeDir, 0755); err != nil {
-		t.Fatalf("Failed to create fake dir (%v)", err)
-	}
-	binaryPath := path.Join(fakeDir, "fake")
-	if contents, err := os.ReadFile(binaryPath); err == nil {
-		return contents
+// Build creates a hello-world binary for the current platform you can use to test.
+func Build(t *testing.T) []byte {
+	fakeName := "fake"
+	if runtime.GOOS == "windows" {
+		fakeName += ".exe"
 	}
 
-	dir := path.Join(os.TempDir(), "fake")
+	dir := path.Join(os.TempDir(), fakeName)
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +33,7 @@ func buildFake(t *testing.T) []byte {
 		t.Fatal()
 	}
 
-	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", "fake")
+	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", fakeName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Dir = dir
@@ -50,13 +46,9 @@ func buildFake(t *testing.T) []byte {
 		}
 	}
 
-	contents, err := os.ReadFile(path.Join(dir, "fake"))
+	contents, err := os.ReadFile(path.Join(dir, fakeName))
 	if err != nil {
 		t.Fatalf("Failed to read compiled fake (%v)", err)
-	}
-
-	if err := os.WriteFile(binaryPath, contents, 0700); err != nil { //nolint:gosec //This needs to be executable.
-		t.Fatalf("Failed to create fake binary at %s (%v)", binaryPath, err)
 	}
 	return contents
 }

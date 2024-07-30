@@ -14,13 +14,14 @@ import (
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
 	"github.com/opentofu/tofudl"
 	"github.com/opentofu/tofudl/branding"
+	"github.com/opentofu/tofudl/internal/helloworld"
 )
 
 // New returns a mirror serving a fake archive signed with a GPG key for testing purposes.
 func New(
 	t *testing.T,
 ) Mirror {
-	return NewFromBinary(t, buildFake(t))
+	return NewFromBinary(t, helloworld.Build(t))
 }
 
 // NewFromBinary returns a mirror serving a binary passed and signed with a GPG key for testing purposes.
