@@ -8,6 +8,9 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/ProtonMail/gopenpgp/v2/crypto"
+	"github.com/opentofu/tofudl/branding"
 )
 
 // NewMirror creates a new mirror, optionally acting as a pull-through cache when passing a pullThroughDownloader.
@@ -17,10 +20,20 @@ func NewMirror(config MirrorConfig, storage MirrorStorage, pullThroughDownloader
 			"no storage and no pull-through downloader passed to NewMirror, cannot create a working mirror",
 		)
 	}
+	if config.GPGKey == "" {
+		config.GPGKey = branding.DefaultGPGKey
+	}
+
+	keyRing, err := createKeyRing(config.GPGKey)
+	if err != nil {
+		return nil, err
+	}
+
 	return &mirror{
 		storage,
 		pullThroughDownloader,
 		config,
+		keyRing,
 	}, nil
 }
 
@@ -57,10 +70,14 @@ type MirrorConfig struct {
 	// ArtifactCacheTimeout is the time the cached artifacts should be considered valid. A duration of 0 means that
 	// artifacts should not be cached. A duration of -1 means that artifacts should be cached indefinitely.
 	ArtifactCacheTimeout time.Duration `json:"artifact_cache_timeout"`
+
+	//GPGKey is the ASCII-armored key to verify downloaded artifacts against. This is only needed in standalone mode.
+	GPGKey string `json:"gpg_key"`
 }
 
 type mirror struct {
 	storage               MirrorStorage
 	pullThroughDownloader Downloader
 	config                MirrorConfig
+	keyRing               *crypto.KeyRing
 }

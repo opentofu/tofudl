@@ -8,5 +8,5 @@ import (
 )
 
 func (m *mirror) DownloadVersion(ctx context.Context, version VersionWithArtifacts, platform Platform, architecture Architecture) ([]byte, error) {
-	return downloadVersion(ctx, version, platform, architecture, m.DownloadArtifact, m.pullThroughDownloader.VerifyArtifact)
+	return downloadVersion(ctx, version, platform, architecture, m.DownloadArtifact, m.VerifyArtifact)
 }

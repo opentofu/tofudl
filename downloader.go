@@ -46,7 +46,20 @@ func New(opts ...ConfigOpt) (Downloader, error) {
 		}
 	}
 
-	key, err := crypto.NewKeyFromArmored(cfg.GPGKey)
+	keyRing, err := createKeyRing(cfg.GPGKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &downloader{
+		cfg,
+		tpl,
+		keyRing,
+	}, nil
+}
+
+func createKeyRing(armoredKey string) (*crypto.KeyRing, error) {
+	key, err := crypto.NewKeyFromArmored(armoredKey)
 	if err != nil {
 		return nil, &InvalidConfigurationError{
 			Message: "Failed to decode GPG key",
@@ -61,12 +74,7 @@ func New(opts ...ConfigOpt) (Downloader, error) {
 	if err != nil {
 		return nil, &InvalidConfigurationError{Message: "Cannot create keyring", Cause: err}
 	}
-
-	return &downloader{
-		cfg,
-		tpl,
-		keyRing,
-	}, nil
+	return keyRing, nil
 }
 
 type downloader struct {
