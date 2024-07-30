@@ -113,12 +113,8 @@ func TestMirrorStandalone(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fakeName := "fake"
-	if runtime.GOOS == "windows" {
-		fakeName += ".exe"
-	}
 	if err := builder.PackageBinary(tofudl.PlatformAuto, tofudl.ArchitectureAuto, binaryContents, nil); err != nil {
-		t.Fatalf("failed to package tofu binary (%v)", err)
+		t.Fatalf("failed to package binary (%v)", err)
 	}
 
 	mirrorStorage, err := tofudl.NewFilesystemStorage(t.TempDir())
