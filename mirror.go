@@ -71,7 +71,7 @@ type MirrorConfig struct {
 	// artifacts should not be cached. A duration of -1 means that artifacts should be cached indefinitely.
 	ArtifactCacheTimeout time.Duration `json:"artifact_cache_timeout"`
 
-	//GPGKey is the ASCII-armored key to verify downloaded artifacts against. This is only needed in standalone mode.
+	// GPGKey is the ASCII-armored key to verify downloaded artifacts against. This is only needed in standalone mode.
 	GPGKey string `json:"gpg_key"`
 }
 
