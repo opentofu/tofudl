@@ -4,5 +4,8 @@
 package tofudl
 
 func (m *mirror) VerifyArtifact(artifactName string, artifactContents []byte, sumsFileContents []byte, signatureFileContent []byte) error {
-	return m.pullThroughDownloader.VerifyArtifact(artifactName, artifactContents, sumsFileContents, signatureFileContent)
+	if m.pullThroughDownloader != nil {
+		return m.pullThroughDownloader.VerifyArtifact(artifactName, artifactContents, sumsFileContents, signatureFileContent)
+	}
+	return verifyArtifact(m.keyRing, artifactName, artifactContents, sumsFileContents, signatureFileContent)
 }

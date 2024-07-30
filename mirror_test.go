@@ -5,10 +5,14 @@ package tofudl_test
 
 import (
 	"context"
+	"runtime"
 	"testing"
 	"time"
 
+	"github.com/ProtonMail/gopenpgp/v2/crypto"
 	"github.com/opentofu/tofudl"
+	"github.com/opentofu/tofudl/branding"
+	"github.com/opentofu/tofudl/internal/helloworld"
 	"github.com/opentofu/tofudl/mockmirror"
 )
 
@@ -90,5 +94,52 @@ func TestMirroringE2E(t *testing.T) {
 
 	if len(binary) == 0 {
 		t.Fatal("Empty artifact!")
+	}
+}
+
+func TestMirrorStandalone(t *testing.T) {
+	binaryContents := helloworld.Build(t)
+
+	ctx := context.Background()
+	key, err := crypto.GenerateKey(branding.ProductName+" Test", "noreply@example.org", "rsa", 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pubKey, err := key.GetArmoredPublicKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := tofudl.NewReleaseBuilder(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := builder.PackageBinary(tofudl.PlatformAuto, tofudl.ArchitectureAuto, binaryContents, nil); err != nil {
+		t.Fatalf("failed to package binary (%v)", err)
+	}
+
+	mirrorStorage, err := tofudl.NewFilesystemStorage(t.TempDir())
+	if err != nil {
+		t.Fatalf("failed to set up TofuDL mirror")
+	}
+	downloader, err := tofudl.NewMirror(
+		tofudl.MirrorConfig{
+			GPGKey: pubKey,
+		},
+		mirrorStorage,
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := builder.Build(ctx, "1.9.0", downloader); err != nil {
+		t.Fatal(err)
+	}
+	_, err = downloader.Download(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Make sure all file handles are closed.
+	if runtime.GOOS == "windows" {
+		runtime.GC()
 	}
 }
