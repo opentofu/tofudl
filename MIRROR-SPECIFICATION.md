@@ -63,7 +63,7 @@ Note: not all platform/architecture combinations lead to valid artifacts. Also n
 
 Verifying the integrity of mirrored files should be performed for every download to ensure that no malicious binaries have been introduced to the mirror. The verification should be performed in the following two steps:
 
-1. Verify the SHa256 checksum of the downloaded artifact against the file called `tofu_{{ .Version }}_SHA256SUMS`. This file has lines in the following format. The entries are separated by two spaces and end with a newline (`\n`), but no carriage return (`\r`). Implementations SHOULD nevertheless strip extra whitespace characters and disregard empty newlines.
+1. Verify the SHA256 checksum of the downloaded artifact against the file called `tofu_{{ .Version }}_SHA256SUMS`. This file has lines in the following format. The entries are separated by two spaces and end with a newline (`\n`), but no carriage return (`\r`). Implementations SHOULD nevertheless strip extra whitespace characters and disregard empty newlines.
    ```
    HEX-ENCODED-SHA256-CHECKSUM  FILENAME
    ```
