@@ -33,4 +33,4 @@ const SPDXAuthorsName = "The OpenTofu Authors"
 const SPDXLicense = "MPL-2.0"
 
 // MaximumUncompressedFileSize indicates the maximum file size when uncompressed.
-const MaximumUncompressedFileSize = 1024 * 1024 * 1024 * 1024
+const MaximumUncompressedFileSize = 1024 * 1024 * 1024
