@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/opentofu/tofudl/blob/main/tofudl.schema.json",
+  "title": "TofuDL API",
+  "description": "Schema information for TofuDL-compatible mirrors",
+  "type": "object",
+  "properties": {
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(|-alpha[0-9]+|-beta[0-9]+|-rc[0-9]+)$"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._\\-]+$"
+            }
+          }
+        }
+      }
+    }
+  }
+}
