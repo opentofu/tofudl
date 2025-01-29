@@ -52,7 +52,7 @@ func downloadVersion(
 	archive, err := downloadArtifactFunc(ctx, version, archiveName)
 	if err != nil {
 		var noSuchArtifact *NoSuchArtifactError
-		if errors.As(err, noSuchArtifact) {
+		if errors.As(err, &noSuchArtifact) {
 			return nil, &UnsupportedPlatformOrArchitectureError{
 				Platform:     platform,
 				Architecture: architecture,
