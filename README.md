@@ -1,4 +1,6 @@
 # TofuDL: OpenTofu downloader library for Go with minimal dependencies
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopentofu%2Ftofudl.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopentofu%2Ftofudl?ref=badge_shield)
+
 
 This library provides an easy way to download, verify, and unpack OpenTofu binaries for local use in Go. It has a minimal set of dependencies and is easy to integrate.
 
@@ -126,3 +128,7 @@ The example above showed a cache/mirror that acts as a pull-through cache to ups
 ## Advanced usage
 
 Both `New()` and `Download()` accept a number of options. You can find the detailed documentation [here](https://pkg.go.dev/github.com/opentofu/tofudl).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopentofu%2Ftofudl.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopentofu%2Ftofudl?ref=badge_large)
