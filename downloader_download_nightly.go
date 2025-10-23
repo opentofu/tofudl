@@ -74,7 +74,7 @@ func downloadLatestNightly(ctx context.Context, opts []DownloadOpt, httpClient *
 	}
 
 	// Extract binary from tar.gz
-	binary, err := extractBinaryFromTarGz(artifactName, artifact)
+	binary, err := extractBinaryFromTarGz(artifactName, artifact, platform)
 	if err != nil {
 		return nil, err
 	}

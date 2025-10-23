@@ -65,11 +65,13 @@ func downloadVersion(
 		return nil, err
 	}
 
-	return extractBinaryFromTarGz(archiveName, archive)
+	return extractBinaryFromTarGz(archiveName, archive, platform)
 }
 
 // extractBinaryFromTarGz extracts the OpenTofu binary from a tar.gz archive
-func extractBinaryFromTarGz(archiveName string, archive []byte) ([]byte, error) {
+// takes platform as an argument, to determine if we should look for "tofu" or "tofu.exe"
+// since it is possible to download for other patforms/archs from a different one
+func extractBinaryFromTarGz(archiveName string, archive []byte, platform Platform) ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewReader(archive))
 	if err != nil {
 		return nil, &ArtifactCorruptedError{
@@ -81,7 +83,10 @@ func extractBinaryFromTarGz(archiveName string, archive []byte) ([]byte, error) 
 		_ = gz.Close()
 	}()
 
-	binaryName := branding.PlatformBinaryName
+	binaryName := "tofu"
+	if platform == PlatformWindows {
+		binaryName = "tofu.exe"
+	}
 	tarFile := tar.NewReader(gz)
 	for {
 		current, err := tarFile.Next()
