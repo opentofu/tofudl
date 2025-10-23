@@ -65,11 +65,16 @@ func downloadVersion(
 		return nil, err
 	}
 
+	return extractBinaryFromTarGz(archiveName, archive)
+}
+
+// extractBinaryFromTarGz extracts the OpenTofu binary from a tar.gz archive
+func extractBinaryFromTarGz(archiveName string, archive []byte) ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewReader(archive))
 	if err != nil {
 		return nil, &ArtifactCorruptedError{
 			Artifact: archiveName,
-			Cause:    nil,
+			Cause:    err,
 		}
 	}
 	defer func() {

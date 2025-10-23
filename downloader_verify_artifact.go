@@ -28,6 +28,10 @@ func verifyArtifact(keyRing *crypto.KeyRing, artifactName string, artifactConten
 		}
 	}
 
+	return verifyArtifactSHAOnly(artifactName, artifactContents, sumsFileContents)
+}
+
+func verifyArtifactSHAOnly(artifactName string, artifactContents []byte, sumsFileContents []byte) error {
 	hash := sha256.New()
 	hash.Write(artifactContents)
 	sum := hex.EncodeToString(hash.Sum(nil))
