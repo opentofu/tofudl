@@ -8,6 +8,6 @@ import (
 	"fmt"
 )
 
-func (m *mirror) DownloadNightly(_ context.Context, opts ...DownloadOpt) ([]byte, error) {
+func (m *mirror) DownloadNightly(_ context.Context, _ ...DownloadOpt) ([]byte, error) {
 	return nil, fmt.Errorf("downloading nightly builds is not supported through mirrors")
 }

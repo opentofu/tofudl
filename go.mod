@@ -1,6 +1,6 @@
 module github.com/opentofu/tofudl
 
-go 1.22
+go 1.25.3
 
 require github.com/ProtonMail/gopenpgp/v2 v2.7.5
 
