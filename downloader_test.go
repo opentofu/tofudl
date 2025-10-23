@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"testing"
 
 	"github.com/opentofu/tofudl"
@@ -48,4 +49,5 @@ func TestE2E(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(stdout.String())
+	runtime.GC()
 }
