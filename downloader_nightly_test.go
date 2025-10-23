@@ -86,6 +86,4 @@ func TestNightlyDownloadWithHostOptions(t *testing.T) {
 	if len(binary) == 0 {
 		t.Fatal("Downloaded binary is empty")
 	}
-
-	logTofuVersion(t, binary)
 }
