@@ -26,6 +26,9 @@ type Downloader interface {
 
 	// Download downloads the OpenTofu binary and provides it as a byte slice.
 	Download(ctx context.Context, opts ...DownloadOpt) ([]byte, error)
+
+	// DownloadNightly downloads the latest nightly build of OpenTofu from the R2 bucket.
+	DownloadNightly(ctx context.Context, opts ...DownloadOpt) ([]byte, error)
 }
 
 func New(opts ...ConfigOpt) (Downloader, error) {

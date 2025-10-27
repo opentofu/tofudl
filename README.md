@@ -126,3 +126,43 @@ The example above showed a cache/mirror that acts as a pull-through cache to ups
 ## Advanced usage
 
 Both `New()` and `Download()` accept a number of options. You can find the detailed documentation [here](https://pkg.go.dev/github.com/opentofu/tofudl).
+
+## Nightly Download
+
+You can download the latest or a specified nightly build of OpenTofu using the new `DownloadNightly` method:
+
+```go
+package main
+
+import (
+    "context"
+    "os"
+    "runtime"
+
+    "github.com/opentofu/tofudl"
+)
+
+func main() {
+    dl, err := tofudl.New()
+    if err != nil {
+        panic(err)
+    }
+
+    // Download the nightly build with ID 20251018-dc9bec611c for the current platform/architecture
+    // You can pass platform and architecture options like usual. For the latest build, you can omit build ID.
+    binary, err := dl.DownloadNightly(context.TODO(), dl.DownloadOptNightlyBuildID("20251018-dc9bec611c"))
+    if err != nil {
+        panic(err)
+    }
+
+    file := "tofu"
+    if runtime.GOOS == "windows" {
+        file += ".exe"
+    }
+    if err := os.WriteFile(file, binary, 0755); err != nil {
+        panic(err)
+    }
+}
+```
+
+**Note:** Nightly downloads are not supported via the mirror/caching layer. You must use the downloader directly for nightly builds.
