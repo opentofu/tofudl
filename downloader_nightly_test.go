@@ -62,7 +62,7 @@ func TestNightlyDownload(t *testing.T) {
 }
 
 // TestNightlyDownloadWithOptions tests downloading with specific platform/architecture
-// We are not testing specific build ID, since those are cleaned up ofter
+// We are not testing specific build ID, since those are cleaned up often
 func TestNightlyDownloadWithHostOptions(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping nightly download test in short mode")
