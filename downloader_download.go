@@ -59,7 +59,7 @@ func DownloadOptVersion(version Version) DownloadOpt {
 	}
 }
 
-// DownloadOptNighlyBuildID specified id of the nightly build in format "${build_date}-${commit_hash}" (20251006-f839281c15)
+// DownloadOptNightlyBuildID specified id of the nightly build in format "${build_date}-${commit_hash}" (20251006-f839281c15)
 // If the id isn't in the correct regex format we return error. This option is specifically for nightly download and does not interfere with other version options.
 func DownloadOptNightlyBuildID(id string) DownloadOpt {
 	return func(spec *DownloadOptions) error {
