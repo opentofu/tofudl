@@ -34,10 +34,12 @@ func (m *mirror) ListVersions(ctx context.Context, opts ...ListVersionOpt) ([]Ve
 		return versions, nil
 	}
 
-	// Fetch stale cached version:
-	cachedVersions, err = m.tryReadVersionCache(m.storage, opts, true)
-	if err == nil {
-		return cachedVersions, nil
+	// Optionally return stale cached version after online failure (see MirrorConfig.AllowStale).
+	if m.config.AllowStale {
+		cachedVersions, err = m.tryReadVersionCache(m.storage, opts, true)
+		if err == nil {
+			return cachedVersions, nil
+		}
 	}
 	return nil, onlineErr
 }
@@ -50,7 +52,7 @@ func (m *mirror) tryReadVersionCache(storage MirrorStorage, opts []ListVersionOp
 	defer func() {
 		_ = cacheReader.Close()
 	}()
-	if !allowStale && m.config.ArtifactCacheTimeout > 0 && storeTime.Add(m.config.ArtifactCacheTimeout).Before(time.Now()) {
+	if !allowStale && m.config.APICacheTimeout > 0 && storeTime.Add(m.config.APICacheTimeout).Before(time.Now()) {
 		return nil, &CachedAPIResponseStaleError{}
 	}
 	return fetchVersions(opts, func() (io.ReadCloser, error) {
