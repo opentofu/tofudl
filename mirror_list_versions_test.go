@@ -39,7 +39,7 @@ func TestTryReadVersionCacheUsesAPICacheTimeout(t *testing.T) {
 		m := &mirror{
 			config: MirrorConfig{
 				APICacheTimeout:      time.Hour,
-				ArtifactCacheTimeout:   time.Nanosecond, // must not affect API staleness
+				ArtifactCacheTimeout: time.Nanosecond, // must not affect API staleness
 			},
 			storage: &testMirrorStorageStub{
 				apiJSON: minimalAPI,
