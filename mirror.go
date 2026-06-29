@@ -62,7 +62,9 @@ type Mirror interface {
 
 // MirrorConfig is the configuration structure for the caching downloader.
 type MirrorConfig struct {
-	// AllowStale enables using stale cached resources if the download fails.
+	// AllowStale enables returning stale cached API responses or artifacts when the pull-through download or
+	// ListVersions request fails (offline / error path). When false, those failures propagate instead of serving
+	// expired cache entries.
 	AllowStale bool `json:"allow_stale"`
 	// APICacheTimeout is the time the cached API JSON should be considered valid. A duration of 0 means the API
 	// responses should not be cached. A duration of -1 means the API responses should be cached indefinitely.

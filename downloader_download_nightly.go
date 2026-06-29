@@ -40,7 +40,12 @@ func downloadLatestNightly(ctx context.Context, opts []DownloadOpt, httpClient *
 		if err != nil {
 			return nil, err
 		}
-		nightlyID, err = newNightlyID(metadata.Date, metadata.Commit)
+		// latest.json commit is a full git hash; nightly artifact names use a 10-char prefix.
+		commit := metadata.Commit
+		if len(commit) > 10 {
+			commit = commit[:10]
+		}
+		nightlyID, err = newNightlyID(metadata.Date, commit)
 		if err != nil {
 			return nil, err
 		}

@@ -29,9 +29,11 @@ func (m *mirror) DownloadArtifact(ctx context.Context, version VersionWithArtifa
 		return artifact, nil
 	}
 
-	cachedArtifact, err = m.tryReadArtifactCache(m.storage, version.ID, artifactName, true)
-	if err == nil {
-		return cachedArtifact, nil
+	if m.config.AllowStale {
+		cachedArtifact, err = m.tryReadArtifactCache(m.storage, version.ID, artifactName, true)
+		if err == nil {
+			return cachedArtifact, nil
+		}
 	}
 	return nil, onlineErr
 }

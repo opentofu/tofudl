@@ -69,7 +69,8 @@ func TestMirroringE2E(t *testing.T) {
 
 	cache2, err := tofudl.NewMirror(
 		tofudl.MirrorConfig{
-			AllowStale:           false,
+			// Offline path must allow stale cache entries when the pull-through URL is unreachable.
+			AllowStale:           true,
 			APICacheTimeout:      -1,
 			ArtifactCacheTimeout: -1,
 		},
